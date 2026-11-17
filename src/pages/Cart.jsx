@@ -1,18 +1,38 @@
-
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 
 import { useCart } from '../context/CartContext';
-import { products, formatPrice } from '../data/products';
+import { products as fallbackProducts, formatPrice } from '../data/products';
+import { getProducts } from '../services/productApi';
 
 import ProductVisual from '../components/ProductVisual';
 
 export default function Cart() {
-  const { cart, updateQuantity, count } = useCart();
+  const { cart, updateQuantity } = useCart();
+  const [productList, setProductList] = useState(fallbackProducts);
 
-  const items = cart.map((item) => ({
-    ...products.find((p) => p.id === item.id),
-    quantity: item.quantity,
-  }));
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProductList(data);
+        }
+      })
+      .catch(() => {
+        // Giữ dữ liệu mẫu nếu Back-end chưa bật
+      });
+  }, []);
+
+  const items = cart
+    .map((item) => {
+      const found =
+        productList.find((p) => p.id === item.id) ||
+        fallbackProducts.find((p) => p.id === item.id);
+      return found ? { ...found, quantity: item.quantity } : null;
+    })
+    .filter(Boolean);
+
+  const visibleCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -104,7 +124,7 @@ export default function Cart() {
             <h2>Giỏ hàng của bạn</h2>
 
             <p>
-              {count} sản phẩm
+              {visibleCount} sản phẩm
             </p>
 
             <div className="total">

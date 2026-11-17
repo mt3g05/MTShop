@@ -5,3 +5,11 @@ dist/
 !.env.example
 *.log
 .DS_Store
+
+# .NET / ASP.NET Core Backend
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+appsettings.Development.json

@@ -1,0 +1,6 @@
+@MTShop.Api_HostAddress = http://localhost:5143
+
+GET {{MTShop.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

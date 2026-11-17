@@ -1,11 +1,29 @@
-
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 
 import ProductVisual from '../components/ProductVisual';
 import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
+import { products as fallbackProducts } from '../data/products';
+import { getProducts } from '../services/productApi';
 
 export default function Home() {
+  const [productList, setProductList] = useState(fallbackProducts);
+
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProductList(data);
+        }
+      })
+      .catch(() => {
+        // Giữ dữ liệu mẫu nếu Back-end chưa bật
+      });
+  }, []);
+
+  const heroFirst = productList[0] || fallbackProducts[0];
+  const heroSecond = productList[1] || fallbackProducts[1];
+
   return (
     <>
       <section className="hero">
@@ -55,11 +73,11 @@ export default function Home() {
             <div className="art-platform" />
 
             <div className="hero-bottle">
-              <ProductVisual {...products[0]} />
+              <ProductVisual {...heroFirst} />
             </div>
 
             <div className="hero-jar">
-              <ProductVisual {...products[1]} />
+              <ProductVisual {...heroSecond} />
             </div>
 
             <span className="art-stamp">
@@ -164,7 +182,7 @@ export default function Home() {
           </div>
 
           <div className="product-grid">
-            {products.slice(0, 4).map((p) => (
+            {productList.slice(0, 4).map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
